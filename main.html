@@ -1,0 +1,334 @@
+.
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Tool Proxy</title>
+<style>
+body{
+    font-family: Arial;
+    background:#f2f4f8;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.container{
+    width:90%;
+    max-width:900px;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.tabs{
+    display:flex;
+    border-bottom:1px solid #ddd;
+}
+.tab{
+    flex:1;
+    padding:10px;
+    text-align:center;
+    cursor:pointer;
+    background:#eee;
+}
+.tab.active{
+    background:#fff;
+    font-weight:bold;
+}
+
+.content{
+    display:none;
+    padding:15px;
+}
+.content.active{
+    display:block;
+}
+
+input,button,textarea{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:5px;
+    border:1px solid #ccc;
+}
+
+button{
+    background:#4CAF50;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+textarea{
+    height:150px;
+}
+
+.btn-group{
+    display:flex;
+    gap:10px;
+}
+.btn-copy{
+    background:#2196F3;
+}
+.btn-clear{
+    background:#f44336;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="tabs">
+        <div class="tab active" onclick="openTab(0)">Gen Proxy (9 Proxy)</div>
+        <div class="tab" onclick="openTab(1)">Tạo Password</div>
+        <div class="tab" onclick="openTab(2)">Tạo Username từ Name</div>
+    </div>
+
+    <div class="content active">
+        <h3>Generate Proxy</h3>
+
+        <input id="user" placeholder="Username">
+        <input id="pass" placeholder="Password">
+        <input id="country" placeholder="Country (VD: US, VN, DE...)">
+        <input id="count" type="number" placeholder="Số lượng proxy">
+
+        <button onclick="gen()">Generate</button>
+
+        <div class="btn-group">
+            <button class="btn-copy" onclick="copyText()">📋 Copy</button>
+            <button class="btn-clear" onclick="clearText()">🗑️ Xóa</button>
+        </div>
+
+        <textarea id="result"></textarea>
+    </div>
+
+    <div class="content">
+        <h3>Tạo Password</h3>
+    
+        <input id="passCount" type="number" placeholder="Số lượng password">
+        
+        <button onclick="genPass()">Generate Password</button>
+    
+        <div class="btn-group">
+            <button class="btn-copy" onclick="copyPass()">📋 Copy</button>
+            <button class="btn-clear" onclick="clearPass()">🗑️ Xóa</button>
+        </div>
+    
+        <textarea id="resultPass"></textarea>
+    </div>
+
+    <div class="content">
+        <h3>Tạo Username từ Name</h3>
+    
+        <textarea id="inputName" placeholder="Nhập mỗi dòng 1 name..."></textarea>
+    
+        <button onclick="genUser()">Tạo Username</button>
+    
+        <div class="btn-group">
+            <button class="btn-copy" onclick="copyUser()">📋 Copy</button>
+            <button class="btn-clear" onclick="clearUser()">🗑️ Xóa</button>
+        </div>
+    
+        <textarea id="resultUser" placeholder="Username sẽ xuất ra đây..."></textarea>
+    </div>
+</div>
+
+<script>
+function openTab(index){
+    let tabs = document.getElementsByClassName("tab");
+    let contents = document.getElementsByClassName("content");
+
+    for(let i=0;i<tabs.length;i++){
+        tabs[i].classList.remove("active");
+        contents[i].classList.remove("active");
+    }
+
+    tabs[index].classList.add("active");
+    contents[index].classList.add("active");
+}
+
+function randomString(length){
+    let chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let result = "";
+    for(let i=0;i<length;i++){
+        result += chars.charAt(Math.floor(Math.random()*chars.length));
+    }
+    return result;
+}
+
+function gen(){
+    let user = document.getElementById("user").value;
+    let pass = document.getElementById("pass").value;
+    let country = document.getElementById("country").value || "US";
+    let count = parseInt(document.getElementById("count").value);
+
+    if(!user || !pass || !count){
+        alert("Nhập đủ thông tin!");
+        return;
+    }
+
+    let output = "";
+
+    for(let i=0;i<count;i++){
+        let ssid = randomString(10);
+        let proxy = "15.235.234.30:17521:" 
+                    + user 
+                    + "-country-" + country 
+                    + "-ssid-" + ssid 
+                    + "-sst-120:" 
+                    + pass;
+
+        output += proxy + "\n";
+    }
+
+    document.getElementById("result").value = output;
+}
+
+function copyText(){
+    let text = document.getElementById("result");
+    text.select();
+    navigator.clipboard.writeText(text.value);
+    alert("Đã copy!");
+}
+
+function clearText(){
+    document.getElementById("result").value = "";
+}
+function randomInt(min, max){
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function genOnePass(){
+    let lower = "abcdefghijklmnopqrstuvwxyz";
+    let upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let digits = "0123456789";
+    let special = "@";
+
+    let length = randomInt(10, 15);
+    let specialCount = randomInt(1, 4);
+
+    let chars = [];
+
+    // bắt buộc
+    chars.push(lower[randomInt(0, lower.length)]);
+    chars.push(upper[randomInt(0, upper.length)]);
+    chars.push(digits[randomInt(0, digits.length)]);
+    chars.push(special[randomInt(0, special.length)]);
+
+    // thêm special còn lại
+    for(let i=1;i<specialCount;i++){
+        chars.push(special[randomInt(0, special.length)]);
+    }
+
+    let lettersDigits = lower + upper + digits;
+
+    while(chars.length < length){
+        chars.push(lettersDigits[randomInt(0, lettersDigits.length)]);
+    }
+
+    // shuffle
+    chars.sort(() => Math.random() - 0.5);
+
+    return chars.join("");
+}
+
+function genPass(){
+    let count = parseInt(document.getElementById("passCount").value);
+
+    if(!count){
+        alert("Nhập số lượng!");
+        return;
+    }
+
+    let output = "";
+
+    for(let i=0;i<count;i++){
+        output += genOnePass() + "\n";
+    }
+
+    document.getElementById("resultPass").value = output;
+}
+
+function copyPass(){
+    let text = document.getElementById("resultPass");
+    text.select();
+    navigator.clipboard.writeText(text.value);
+    alert("Đã copy!");
+}
+
+function clearPass(){
+    document.getElementById("resultPass").value = "";
+}
+function genUser(){
+    let data = document.getElementById("inputName").value.trim();
+
+    if(!data){
+        alert("Nhập name trước!");
+        return;
+    }
+
+    let lines = data.split("\n");
+    let output = "";
+
+    lines.forEach(item => {
+
+        let name = item.trim();
+        if(name == "") return;
+
+        let parts = name.split(" ");
+        if(parts.length < 2) return;
+
+        let firstName = parts[0];
+        let lastName = parts[parts.length - 1];
+
+        let choice = Math.floor(Math.random()*3);
+        let digitLength = Math.floor(Math.random() * 2) + 3; // 3-5 số
+
+        let min = Math.pow(10, digitLength - 1);
+        let max = Math.pow(10, digitLength) - 1;
+
+        let srd = Math.floor(Math.random() * (max - min + 1)) + min;
+
+        let full = "";
+
+        if(name.replace(/ /g,"").length > 13){
+            full = firstName[0] + lastName + srd;
+        }
+        else{
+            if(choice == 0){
+                full = firstName + lastName + srd;
+            }
+            else if(choice == 1){
+                full = lastName + srd;
+            }
+            else{
+                full = firstName[0] + lastName + srd;
+            }
+        }
+
+        output += full.toLowerCase() + "\n";
+
+    });
+
+    document.getElementById("resultUser").value = output;
+}
+
+function copyUser(){
+    let text = document.getElementById("resultUser");
+    text.select();
+    navigator.clipboard.writeText(text.value);
+    alert("Đã copy!");
+}
+
+function clearUser(){
+    document.getElementById("resultUser").value = "";
+}
+</script>
+
+</body>
+</html>
